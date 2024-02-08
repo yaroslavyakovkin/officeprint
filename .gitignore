@@ -1,11 +1,6 @@
 /.env
 /.venv
-/database
-/handlers
-/logo.jpg
+**/__pycache__/
+/assets
+*.sql
 /logs
-/main.py
-/status_mapping.csv
-/temp
-/test.py
-/util
