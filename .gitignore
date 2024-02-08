@@ -1,0 +1,11 @@
+/.env
+/.venv
+/database
+/handlers
+/logo.jpg
+/logs
+/main.py
+/status_mapping.csv
+/temp
+/test.py
+/util
