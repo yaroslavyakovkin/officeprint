@@ -1,4 +1,5 @@
 import os, asyncio, logging, shutil
+from subprocess import call as printprocess
 from docx2pdf import convert as d2p
 from win32 import win32api, win32print
 from aiogram import Bot
@@ -114,7 +115,7 @@ async def andprint(call:CallbackQuery, bot:Bot):
             d2p(tempath)
             os.remove(tempath)
 
-        for i in range(3601):
+        for i in range(3600):
             t = "{:02d}:{:02d}".format(i // 60, i % 60)
             if win32print.EnumJobs(handle, 0, 1):
                 wait = caption + '\nОжидает печать - '
@@ -124,32 +125,36 @@ async def andprint(call:CallbackQuery, bot:Bot):
                 else: caption = f'{wait}{t}\nПринят в печать'
                 break
             await asyncio.sleep(1)
+        else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
+
         
         attributes = win32print.GetPrinter(handle, 2)
         attributes['pDevMode'].Copies = copy
         attributes['pDevMode'].Color = color
         attributes['pDevMode'].Duplex = duplex
         win32print.SetPrinter(handle, 2, attributes, 0)  
-        win32api.ShellExecute(2,'print',pdf, None, '.', 0)
+        printprocess(['util\\sumatra\\SumatraPDF.exe', '-print-to-default', '-silent', pdf])
+        #win32api.ShellExecute(2,'print',pdf, None, '.', 0)
         await asyncio.sleep(5)
 
         caption += '\nПечатается - '
         r = 0
-        for i in range(3601):
+        for i in range(3600):
             t = "{:02d}:{:02d}".format(i // 60, i % 60)
             await call.message.edit_caption(caption=f'{caption}{t}</b>',parse_mode=ParseMode.HTML)
             status = win32print.GetPrinter(handle, 2)['Status']
             job = win32print.EnumJobs(handle, 0, 1)
             if not job: break
-            if status !=0:
+            if status !=0 and report:
                 logging.info(f'ERROR #{status} on PRINTER!')
-                if status in STATUS and report:
+                report = False
+                r = i
+                if status in STATUS:
                     await bot.send_message(os.getenv('ADMIN'),f'Во время печати произошла ошибка\
                                                         №{status}\nТекст ошибки: {STATUS[status]}')
-                    report = False
-                    r = i
             if i == 0 or i-r == 60:report = True
             await asyncio.sleep(1)
+        else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
 
         caption += f'{t}\nФайл успешно напечатан!'
         logging.info(f'file for USER({call.from_user.id}) successful PRINTED!')

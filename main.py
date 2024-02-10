@@ -1,7 +1,6 @@
 import logging, asyncio, os
 from dotenv import load_dotenv as ld
 from aiogram import Bot, Dispatcher, F
-from aiogram.types import CallbackQuery
 from aiogram.filters import Command, CommandStart
 from handlers.start_reg_stop import start_bot, stop_bot, start, secrete_key, verify
 from handlers.prepare_and_print import prepare, andprint
