@@ -146,7 +146,7 @@ async def andprint(call:CallbackQuery, bot:Bot):
             job = win32print.EnumJobs(handle, 0, 1)
             if not job: break
             if status !=0 and report:
-                logging.info(f'ERROR #{status} on PRINTER!')
+                logging.error(f'ERROR #{status} on PRINTER!')
                 report = False
                 r = i
                 if status in STATUS:
@@ -166,7 +166,7 @@ async def andprint(call:CallbackQuery, bot:Bot):
 
     if data[1] == 'cancel':
         await delete_file(file_id)
-        await call.answer('Заявка успешно отменена')
+        await call.answer('Заявка успешно отменена.')
         await call.message.delete()
 
     if data[1] != 'print' and data[1] != 'cancel' and data[1] != 'back':
