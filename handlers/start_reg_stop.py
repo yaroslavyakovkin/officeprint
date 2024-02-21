@@ -44,8 +44,9 @@ async def secrete_key(message:Message, bot:Bot):
 
 
 async def verify(call:CallbackQuery, bot:Bot):
-    user_id=call.data.split(':')[1]
-    if await get_verify(user_id)[0] == 1:
+    user_id=int(call.data.split(':')[1])
+    verify = await get_verify(user_id)
+    if verify[0] == 1:
         call.message.delete()
     else:
         await switch_verify(user_id)
