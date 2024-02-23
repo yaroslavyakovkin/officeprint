@@ -1,16 +1,23 @@
-import os, logging
+import os
+import logging
+from winotify import Notification as N
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from database.sql import db_start, get_verify, create_user, switch_verify, get_username
+from database.sql import get_verify, create_user, switch_verify, get_username
 from util.commands import commands
 
-
 async def start_bot(bot:Bot):
+    icon = os.path.join(os.getcwd(),'assets\logo.jpg')
+    toast = N(app_id='Office Print', 
+              title='Бот запущен!', 
+              msg='Бот успешно запущен, воспользуйтесь иконкой в трее для выбора принтера.',
+              icon=icon)
+    toast.add_actions(label='Telegram',
+                      launch='https://t.me/office_printer_bot')
+    toast.show()
     await commands(bot)
-    await db_start()
-    print('BOT STARTED')
 
 async def start(message:Message, bot:Bot):
     user_id = message.from_user.id
@@ -55,4 +62,9 @@ async def verify(call:CallbackQuery, bot:Bot):
         await bot.send_message(user_id, 'Доступ разрешён! Теперь можно присылать файлы!')
 
 async def stop_bot():
-    print('BOT STOPPED')
+    icon = os.path.join(os.getcwd(),'assets\logo.jpg')
+    toast = N(app_id='Office Print',
+              title='Бот остановлен!',
+              msg='Бот успешно остановлен.\nДо новых встреч!',
+              icon=icon)
+    toast.show()
