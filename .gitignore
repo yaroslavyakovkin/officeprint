@@ -6,3 +6,5 @@
 /logs
 util/sumatra/*
 !SumatraPDF.exe
+alpha.ico
+*.exe

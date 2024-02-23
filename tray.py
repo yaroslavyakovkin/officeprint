@@ -41,7 +41,7 @@ def select(icon, item):
     get_menu()
     icon.update_menu()
 
-process = sub.Popen('.venv/Scripts/python bot.py')
+process = sub.Popen('.venv/Scripts/python bot.py', creationflags=s.CREATE_NO_WINDOW)
 menu = get_menu()
 icon = tr.Icon('Office Printer', img, 'Office Printer', tr.Menu(*menu))
 t.sleep(1)
