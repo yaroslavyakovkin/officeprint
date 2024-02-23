@@ -1,6 +1,7 @@
 import asyncio
 import logging
 import os
+from datetime import datetime as dt
 from dotenv import load_dotenv as ld
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
@@ -14,8 +15,8 @@ ADMIN = os.getenv("ADMIN")
 KEY = os.getenv('KEY')
 
 logging.basicConfig(level=logging.INFO, 
-                    filename=f'logs\\officeprintbot.log',
-                    format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s')
+                filename=f'logs\\officeprinter_{dt.datetime.now().strftime("%Y-%m-%d_%H-%M")}.log',
+            format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s')
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
