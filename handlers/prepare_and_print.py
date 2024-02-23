@@ -1,4 +1,4 @@
-import os, asyncio, logging, shutil
+import os, asyncio, logging, shutil, io
 from subprocess import call as printprocess
 from docx2pdf import convert as d2p
 from win32 import win32api, win32print
@@ -161,7 +161,6 @@ async def andprint(call:CallbackQuery, bot:Bot):
         await call.message.edit_caption(caption=
                                         f'{caption}</b>',
                                         parse_mode=ParseMode.HTML)
-        await delete_file(file_id)
         shutil.rmtree(path)
 
     if data[1] == 'cancel':

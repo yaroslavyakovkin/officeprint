@@ -1,12 +1,14 @@
-import sqlite3, logging
+import sqlite3
+import logging
 from datetime import datetime
 
 
-async def db_start():
+def db_start():
     db = sqlite3.connect('database\\db.sql')
     cur = db.cursor()
 
-    cur.execute('''
+    cur.execute(
+                '''
                 CREATE TABLE IF NOT EXISTS users
                 (
                 user_id INTEGER, 
@@ -14,17 +16,38 @@ async def db_start():
                 verify INTEGER DEFAULT 0,
                 PRIMARY KEY("user_id")
                 )
-                ''')
+                '''
+                )
+    
     cur.execute(
-                '''CREATE TABLE IF NOT EXISTS files(
+                '''
+                CREATE TABLE IF NOT EXISTS files
+                (
                 unique_id TEXT,
                 copy INTEGER DEFAULT 1,
                 color INTEGER DEFAULT 1,
-                duplex INTEGER DEFAULT 1
+                duplex INTEGER DEFAULT 1,
+                date TEXT
                 )
-                ''')
-    db.commit()
-    db.close()
+                '''
+                )
+
+    cur.execute(
+                '''
+                CREATE TABLE IF NOT EXISTS defaults
+                (
+                key TEXT,
+                value TEXT,
+                PRIMARY KEY('key')
+                )
+                '''
+                )
+    try:
+        cur.execute("INSERT INTO defaults (key, value) VALUES (?, ?)", ('printer', 'Default'))
+    except sqlite3.IntegrityError:None    
+    finally:
+        db.commit()
+        db.close()
 
 async def create_user(user_id:int, username:str):
     db = sqlite3.connect('database\\db.sql')
@@ -65,9 +88,10 @@ async def switch_verify(user_id:int):
     db.close()
 
 async def create_file(unique_id:str):
+    date = datetime.now().strftime('%d.%m.%Y - %H:%M')
     db = sqlite3.connect('database\\db.sql')
     cur = db.cursor()
-    cur.execute("INSERT INTO files (unique_id) VALUES (?)", (unique_id,))
+    cur.execute("INSERT INTO files (unique_id, date) VALUES (?, ?)", (unique_id, date))
     db.commit()
     db.close()
     return await get_settings(unique_id)
@@ -95,3 +119,17 @@ async def edit_settings(unique_id:str, parametr:str, value:int):
     cur.execute(f'UPDATE files SET {parametr} = ? WHERE unique_id = ?', (value, unique_id))
     db.commit()
     db.close()
+
+def edit_defaults(key:str, value:str):
+    db = sqlite3.connect('database\\db.sql')
+    cur = db.cursor()
+    cur.execute(f'UPDATE defaults SET value = ? WHERE key = ?', (value, key))
+    db.commit()
+    db.close()
+
+def get_defaults(default:str):
+    db = sqlite3.connect('database\\db.sql')
+    cur = db.cursor()
+    printer = cur.execute('SELECT value FROM defaults WHERE key = ?',(default,)).fetchone()
+    db.close()
+    return printer[0]
