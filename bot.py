@@ -15,8 +15,8 @@ ADMIN = os.getenv("ADMIN")
 KEY = os.getenv('KEY')
 
 logging.basicConfig(level=logging.INFO, 
-                filename=f'logs\\officeprinter_{dt.datetime.now().strftime("%Y-%m-%d_%H-%M")}.log',
-            format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s')
+                    filename=f'logs\\officeprinter_{dt.now().strftime("%Y-%m-%d_%H-%M")}.log',
+                    format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s')
 
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
