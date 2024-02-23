@@ -35,8 +35,5 @@ async def main():
     finally:
         await bot.session.close()
 
-def stop(signum, frame):
-    exit()    
-
 if __name__ == '__main__':    
     asyncio.run(main())

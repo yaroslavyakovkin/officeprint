@@ -9,6 +9,7 @@ from database.sql import get_verify, create_user, switch_verify, get_username
 from util.commands import commands
 
 async def start_bot(bot:Bot):
+    print('Hiiiii! My cmd-friend...')
     icon = os.path.join(os.getcwd(),'assets\logo.jpg')
     toast = N(app_id='Office Print', 
               title='Бот запущен!', 
@@ -62,6 +63,7 @@ async def verify(call:CallbackQuery, bot:Bot):
         await bot.send_message(user_id, 'Доступ разрешён! Теперь можно присылать файлы!')
 
 async def stop_bot():
+    print('Bye! My cmd-friend...')
     icon = os.path.join(os.getcwd(),'assets\logo.jpg')
     toast = N(app_id='Office Print',
               title='Бот остановлен!',
