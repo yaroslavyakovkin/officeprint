@@ -1,13 +1,17 @@
-import os, asyncio, logging, shutil, io
+import os
+import asyncio
+import logging
+import shutil
 from subprocess import call as printprocess
 from docx2pdf import convert as d2p
-from win32 import win32api, win32print
+from win32 import win32print
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.enums import ParseMode
-from database.sql import get_verify, create_file, delete_file, get_settings, edit_settings
 from util.keyboards import kbmain, kbsett
 from util.checking import STATUS, ALLOWED_EXTENSIONS
+from database.sql import (get_verify, create_file, delete_file, 
+                          get_settings, edit_settings, get_defaults)
 
 
 async def prepare(message:Message, bot:Bot):
@@ -19,7 +23,8 @@ async def prepare(message:Message, bot:Bot):
             name, ext = os.path.splitext(message.document.file_name)
             if ext in ALLOWED_EXTENSIONS:    
                 logging.info(f'User({message.from_user.id}) UPLOAD new allowed file!')
-                settings = await create_file(message.document.file_unique_id)
+                settings = await create_file(message.document.file_unique_id, 
+                                             message.from_user.username)
 
                 copy = settings[0]
                 if settings[1] == 1: color='ч/б' 
@@ -89,13 +94,9 @@ async def andprint(call:CallbackQuery, bot:Bot):
                 \nЧисло экземпляров: {copy}\
                 \nЦвет печати: {clr}\
                 \n{dpl}</i>\n\
-                \n<b>Статус:\
-                \nПодготовка файла'
+                \n<b>Статус:'
         await call.message.edit_caption(caption=f'{caption}</b>',parse_mode=ParseMode.HTML)
         
-        printer_name = win32print.GetDefaultPrinter()
-        default = {"DesiredAccess": win32print.PRINTER_ALL_ACCESS}
-        handle = win32print.OpenPrinter(printer_name, default)
         path = f'temp\\{file_id}'
         pdf = f'{path}\\{name}.pdf'
         tempath = f'{path}\\{name}{ext}'
@@ -115,6 +116,12 @@ async def andprint(call:CallbackQuery, bot:Bot):
             d2p(tempath)
             os.remove(tempath)
 
+        default = {"DesiredAccess": win32print.PRINTER_ALL_ACCESS}
+        printer_name = get_defaults('printer')
+        default_printer = win32print.GetDefaultPrinter()
+        if printer_name == 'Default':printer_name = default_printer
+        handle = win32print.OpenPrinter(printer_name, default)
+
         for i in range(3600):
             t = "{:02d}:{:02d}".format(i // 60, i % 60)
             if win32print.EnumJobs(handle, 0, 1):
@@ -127,15 +134,17 @@ async def andprint(call:CallbackQuery, bot:Bot):
             await asyncio.sleep(1)
         else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
 
-        
-        attributes = win32print.GetPrinter(handle, 2)
+        attributesolds = win32print.GetPrinter(handle, 2)
+        attributes = attributesolds
         attributes['pDevMode'].Copies = copy
         attributes['pDevMode'].Color = color
         attributes['pDevMode'].Duplex = duplex
-        win32print.SetPrinter(handle, 2, attributes, 0)  
+        win32print.SetPrinter(handle, 2, attributes, 0)
+        win32print.SetDefaultPrinter(printer_name)
         printprocess(['util\\sumatra\\SumatraPDF.exe', '-print-to-default', '-silent', pdf])
         #win32api.ShellExecute(2,'print',pdf, None, '.', 0)
         await asyncio.sleep(5)
+        win32print.SetPrinter(handle, 2, attributesolds, 0)  
 
         caption += '\nПечатается - '
         r = 0
@@ -157,10 +166,9 @@ async def andprint(call:CallbackQuery, bot:Bot):
         else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
 
         caption += f'{t}\nФайл успешно напечатан!'
+
         logging.info(f'file for USER({call.from_user.id}) successful PRINTED!')
-        await call.message.edit_caption(caption=
-                                        f'{caption}</b>',
-                                        parse_mode=ParseMode.HTML)
+        await call.message.edit_caption(caption=f'{caption}</b>', parse_mode=ParseMode.HTML)
         shutil.rmtree(path)
 
     if data[1] == 'cancel':

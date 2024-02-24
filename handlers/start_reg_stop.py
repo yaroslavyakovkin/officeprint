@@ -5,16 +5,17 @@ from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from database.sql import get_verify, create_user, switch_verify, get_username
+from database.sql import get_verify, create_user, switch_verify, get_username, db_start
 from util.commands import commands
 
 async def start_bot(bot:Bot):
+    db_start()
     print('Hiiiii! My cmd-friend...')
-    icon = os.path.join(os.getcwd(),'assets\logo.jpg')
+    ico = os.path.join(os.getcwd(),'assets\logo.jpg')
     toast = N(app_id='Office Print', 
-              title='Бот запущен!', 
+              title='Бот запущен!',
               msg='Бот успешно запущен, воспользуйтесь иконкой в трее для выбора принтера.',
-              icon=icon)
+              icon=ico)
     toast.add_actions(label='Telegram',
                       launch='https://t.me/office_printer_bot')
     toast.show()
@@ -31,9 +32,11 @@ async def start(message:Message, bot:Bot):
         await message.answer('🖨')
         await message.answer('<i>Вы у нас впервые?\
                              \n<b>Дождитесь верификации от администратора!</b>\
-                             \nИли вы можете прислать секретный код через команду</i> <code>/code</code>',
+                             \nИли пришлите секретный код через команду</i> \<code>/code</code>',
                              parse_mode=ParseMode.HTML)
-        await bot.send_message(os.getenv('ADMIN'), f'Новый пользователь @{message.from_user.username}',reply_markup=kb.as_markup())
+        await bot.send_message(os.getenv('ADMIN'), 
+                               f'Новый пользователь @{message.from_user.username}',
+                               reply_markup=kb.as_markup())
     elif verify[0] == 1: await message.answer('Добро пожаловать снова!\nЧто отправим на печать?')
 
 async def secrete_key(message:Message, bot:Bot):
@@ -47,7 +50,9 @@ async def secrete_key(message:Message, bot:Bot):
             await switch_verify(user_id)
             await message.answer('Доступ разрешён!\nТеперь можно присылать файлы!')
             logging.info(f'USER({user_id}) verifed with SECRET-KEY!')
-            await bot.send_message(os.getenv('ADMIN'), f'Пользователь @{username}, получил доступ через ключ.')
+            await bot.send_message(os.getenv('ADMIN'), 
+                                   f'Пользователь @{username}, 
+                                   получил доступ через ключ.')
     else: await message.reply('Введён неверный код...')
 
 
@@ -64,9 +69,9 @@ async def verify(call:CallbackQuery, bot:Bot):
 
 async def stop_bot():
     print('Bye! My cmd-friend...')
-    icon = os.path.join(os.getcwd(),'assets\logo.jpg')
+    ico = os.path.join(os.getcwd(),'assets\logo.jpg')
     toast = N(app_id='Office Print',
-              title='Бот остановлен!',
-              msg='Бот успешно остановлен.\nДо новых встреч!',
-              icon=icon)
+            title='Бот остановлен!',
+            msg='Бот успешно остановлен.\nДо новых встреч!',
+            icon=ico)
     toast.show()

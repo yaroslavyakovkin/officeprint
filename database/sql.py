@@ -27,7 +27,8 @@ def db_start():
                 copy INTEGER DEFAULT 1,
                 color INTEGER DEFAULT 1,
                 duplex INTEGER DEFAULT 1,
-                date TEXT
+                date TEXT,
+                username TEXT
                 )
                 '''
                 )
@@ -87,11 +88,11 @@ async def switch_verify(user_id:int):
     db.commit()
     db.close()
 
-async def create_file(unique_id:str):
+async def create_file(unique_id:str, username:str):
     date = datetime.now().strftime('%d.%m.%Y - %H:%M')
     db = sqlite3.connect('database\\db.sql')
     cur = db.cursor()
-    cur.execute("INSERT INTO files (unique_id, date) VALUES (?, ?)", (unique_id, date))
+    cur.execute("INSERT INTO files (unique_id, date, username) VALUES (?, ?, ?)", (unique_id, date, username))
     db.commit()
     db.close()
     return await get_settings(unique_id)

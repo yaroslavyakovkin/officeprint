@@ -1,8 +1,7 @@
 import pystray as tr
-import signal as s
-import time as t
 import os
 import subprocess as sub
+from winotify import Notification as N
 from PIL import Image
 from win32 import win32print as p
 from database.sql import db_start, edit_defaults, get_defaults
@@ -42,8 +41,16 @@ def select(icon, item):
     icon.update_menu()
 
 process = sub.Popen('.venv/Scripts/python bot.py', creationflags=sub.CREATE_NO_WINDOW)
+
 menu = get_menu()
 icon = tr.Icon('Office Printer', img, 'Office Printer', tr.Menu(*menu))
-t.sleep(1)
 icon.run()
-os.kill(process.pid, s.CTRL_C_EVENT)
+
+process.terminate()
+
+ico = os.path.join(os.getcwd(),'assets\logo.jpg')
+toast = N(app_id='Office Print',
+            title='Бот остановлен!',
+            msg='Бот успешно остановлен.\nДо новых встреч!',
+            icon=ico)
+toast.show()
