@@ -50,9 +50,8 @@ async def secrete_key(message:Message, bot:Bot):
             await switch_verify(user_id)
             await message.answer('Доступ разрешён!\nТеперь можно присылать файлы!')
             logging.info(f'USER({user_id}) verifed with SECRET-KEY!')
-            await bot.send_message(os.getenv('ADMIN'), 
-                                   f'Пользователь @{username}, 
-                                   получил доступ через ключ.')
+            await bot.send_message(os.getenv('ADMIN'),
+                                   f'Пользователь @{username}, получил доступ через код.')
     else: await message.reply('Введён неверный код...')
 
 
