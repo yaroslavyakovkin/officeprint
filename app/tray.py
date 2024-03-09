@@ -1,15 +1,15 @@
 import pystray as tr
-from aiogram import Dispatcher
-# import os
+import os
 # import subprocess as sub
-# from winotify import Notification as N
+from winotify import Notification as N
 from PIL import Image
 from win32 import win32print as p
-from database.sql import edit_defaults, get_defaults
+from database.sql import edit_defaults, get_defaults, db_start
+from app.settings import settings
 
     
-# db_start()
-async def tray(dp, bot):
+def tray():
+    db_start()
     img = Image.open('assets\\alpha.png')
 
     def get_printers():
@@ -21,9 +21,9 @@ async def tray(dp, bot):
     def get_menu():
         global menu
         global selected
-        menu = []
+        menu = [tr.MenuItem('Настройки', select)]
         m_items = []
-        selected = get_defaults('printer')
+        selected = get_defaults('PRINTER')
 
         for printer in get_printers():
             m_items += [tr.MenuItem(printer, select, lambda _, item = printer: item == selected)]
@@ -37,21 +37,22 @@ async def tray(dp, bot):
         text = item.text
         if text=='Выход':
             icon.stop()
+        elif text=='Настройки':settings()
         elif text=='Обновить':None
-        else:edit_defaults('printer', text)
+        else:edit_defaults('PRINTER', text)
         get_menu()
         icon.update_menu()
 
     menu = get_menu()
     icon = tr.Icon('Office Printer', img, 'Office Printer', tr.Menu(*menu))
     icon.run()
-    dp.stop_polling(bot)
-# process = sub.Popen('.venv/Scripts/python bot.py', creationflags=sub.CREATE_NO_WINDOW)
-# process.terminate()
 
-# ico = os.path.join(os.getcwd(),'assets\logo.jpg')
-# toast = N(app_id='Office Print',
-#             title='Бот остановлен!',
-#             msg='Бот успешно остановлен.\nДо новых встреч!',
-#             icon=ico)
-# toast.show()
+    # process = sub.Popen('.venv/Scripts/python bot.py', creationflags=sub.CREATE_NO_WINDOW)
+    # process.terminate()
+
+    ico = os.path.join(os.getcwd(),'assets\logo.jpg')
+    toast = N(app_id='Office Print',
+                title='Бот остановлен!',
+                msg='Бот успешно остановлен.\nДо новых встреч!',
+                icon=ico)
+    toast.show()

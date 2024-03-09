@@ -11,13 +11,15 @@ from util.commands import commands
 async def start_bot(bot:Bot):
     db_start()
     print('Hiiiii! My cmd-friend...')
+    info = await bot.get_me()
+    url = f'https://t.me/{info.username}'
     ico = os.path.join(os.getcwd(),'assets\logo.jpg')
     toast = N(app_id='Office Print', 
               title='Бот запущен!',
               msg='Бот успешно запущен, воспользуйтесь иконкой в трее для выбора принтера.',
               icon=ico)
     toast.add_actions(label='Telegram',
-                      launch='https://t.me/office_printer_bot')
+                      launch=url)
     toast.show()
     await commands(bot)
 
