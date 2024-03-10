@@ -11,10 +11,20 @@ from database.sql import get_defaults
 from handlers.prepare_and_print import prepare, andprint
 
 if not os.path.exists('logs'):os.makedirs('logs')
-logging.basicConfig(level=logging.INFO, 
-                    filename=f'logs\\officeprinter_{dt.now().strftime("%Y-%m-%d_%H-%M")}.log',
+
+handler = trfh(filename=f'logs\\officeprinter_{dt.now().strftime("%Y-%m-%d_%H-%M")}.log',
+                when='midnight', 
+                interval=1, 
+                backupCount=3)
+
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s',
-                    handlers=trfh(when='midnight', interval=1, backupCount=3))
+                    handlers=[handler])
+
+logfiles = [file for file in os.listdir('logs') if file.endswith('.log')]
+logfiles.sort(reverse=True)
+for file in logfiles:
+    if file not in logfiles[:3]:os.remove(os.path.join('logs/', file))
 
 TOKEN = get_defaults('TOKEN')
 ADMIN = get_defaults("ADMIN")

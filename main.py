@@ -15,6 +15,7 @@ if get_defaults('TOKEN') is None:
             msg='Вы не указали токен. Перезапустите приложение, затем попробуйте еще раз.',
             icon=ico)
         toast.show()
+        exit()
 from threading import Thread
 from asyncio import run
 from app.bot import printbot
