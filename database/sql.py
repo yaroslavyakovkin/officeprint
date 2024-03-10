@@ -1,9 +1,11 @@
+import os
 import sqlite3
 import logging
 from datetime import datetime
 
 
 def db_start():
+    if not os.path.exists('database'):os.makedirs('database')
     db = sqlite3.connect('database\\db.sql')
     cur = db.cursor()
 
@@ -131,9 +133,9 @@ def edit_defaults(key:str, value:str):
     db.commit()
     db.close()
 
-def get_defaults(default:str):
+def get_defaults(key:str):
     db = sqlite3.connect('database\\db.sql')
     cur = db.cursor()
-    printer = cur.execute('SELECT value FROM defaults WHERE key = ?',(default,)).fetchone()
+    value = cur.execute('SELECT value FROM defaults WHERE key = ?',(key,)).fetchone()
     db.close()
-    return printer[0]
+    return value[0]

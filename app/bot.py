@@ -1,6 +1,7 @@
 import os
 import asyncio
 import logging
+from logging.handlers import TimedRotatingFileHandler as trfh
 from datetime import datetime as dt
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
@@ -12,7 +13,8 @@ from handlers.prepare_and_print import prepare, andprint
 if not os.path.exists('logs'):os.makedirs('logs')
 logging.basicConfig(level=logging.INFO, 
                     filename=f'logs\\officeprinter_{dt.now().strftime("%Y-%m-%d_%H-%M")}.log',
-                    format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s')
+                    format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s',
+                    handlers=trfh(when='midnight', interval=1, backupCount=3))
 
 TOKEN = get_defaults('TOKEN')
 ADMIN = get_defaults("ADMIN")

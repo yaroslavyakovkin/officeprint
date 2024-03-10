@@ -2,12 +2,14 @@ import os
 import asyncio
 import logging
 import shutil
+from random import randint as rn
 from subprocess import call as printprocess
 from docx2pdf import convert as d2p
 from win32 import win32print
 from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.enums import ParseMode
+
 from util.keyboards import kbmain, kbsett
 from util.checking import STATUS, ALLOWED_EXTENSIONS
 from database.sql import (get_verify, create_file, delete_file, 
@@ -37,12 +39,15 @@ async def prepare(message:Message, bot:Bot):
                                             caption=f'<i>Файл <code>{name}</code> принят!\n\
                                                        \nЧисло экземпляров: {copy}\
                                                        \nЦвет печати: {color}\
-                                                       \n{duplex}</i>',parse_mode=ParseMode.HTML,
+                                                       \n{duplex}</i>',
+                                            parse_mode=ParseMode.HTML,
                                             reply_markup=kbmain)
             else:
-                await message.reply(f'<b>Ой, файл не того формата!</b>', parse_mode=ParseMode.HTML)
+                await message.reply(f'<b>Ой, файл не того формата!</b>', 
+                                    parse_mode=ParseMode.HTML)
         else:
-            await message.reply(f'<b>Ой, файл слишком большой!</b>', parse_mode=ParseMode.HTML)
+            await message.reply(f'<b>Ой, файл слишком большой!</b>', 
+                                parse_mode=ParseMode.HTML)
 
 async def andprint(call:CallbackQuery, bot:Bot):
     data = call.data.split(':')
@@ -95,14 +100,17 @@ async def andprint(call:CallbackQuery, bot:Bot):
                 \nЦвет печати: {clr}\
                 \n{dpl}</i>\n\
                 \n<b>Статус:'
-        await call.message.edit_caption(caption=f'{caption}</b>',parse_mode=ParseMode.HTML)
+        await call.message.edit_caption(caption=f'{caption}</b>',
+                                        parse_mode=ParseMode.HTML)
         
+        if not os.path.exists('temp'):os.makedirs('temp')
         path = f'temp\\{file_id}'
         pdf = f'{path}\\{name}.pdf'
         tempath = f'{path}\\{name}{ext}'
         
         caption += '\nСкачивание файла'
-        await call.message.edit_caption(caption=f'{caption}</b>',parse_mode=ParseMode.HTML)
+        await call.message.edit_caption(caption=f'{caption}</b>',
+                                        parse_mode=ParseMode.HTML)
 
         if not os.path.exists(path):os.makedirs(path)
         file_info = await bot.get_file(call.message.document.file_id)
@@ -112,64 +120,74 @@ async def andprint(call:CallbackQuery, bot:Bot):
 
         if ext != '.pdf':
             caption += '\nКонвертация файла'
-            await call.message.edit_caption(caption=f'{caption}</b>',parse_mode=ParseMode.HTML)
+            await call.message.edit_caption(caption=f'{caption}</b>',
+                                            parse_mode=ParseMode.HTML)
             d2p(tempath)
             os.remove(tempath)
+        try:
+            default = {"DesiredAccess": win32print.PRINTER_ALL_ACCESS}
+            printer_name = get_defaults('PRINTER')
+            default_printer = win32print.GetDefaultPrinter()
+            if printer_name == 'Default':printer_name = default_printer
+            handle = win32print.OpenPrinter(printer_name, default)
+            for i in range(3600):
+                t = "{:02d}:{:02d}".format(i // 60, i % 60)
+                if win32print.EnumJobs(handle, 0, 1):
+                    wait = caption + '\nОжидает печать - '
+                    await call.message.edit_caption(caption=f'{wait}{t}</b>',
+                                                    parse_mode=ParseMode.HTML)
+                else: 
+                    if i == 0: caption += f'\nПринят в печать'
+                    else: caption = f'{wait}{t}\nПринят в печать'
+                    break
+                await asyncio.sleep(1)
+            else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
 
-        default = {"DesiredAccess": win32print.PRINTER_ALL_ACCESS}
-        printer_name = get_defaults('printer')
-        default_printer = win32print.GetDefaultPrinter()
-        if printer_name == 'Default':printer_name = default_printer
-        handle = win32print.OpenPrinter(printer_name, default)
+            attributesolds = win32print.GetPrinter(handle, 2)
+            attributes = attributesolds
+            attributes['pDevMode'].Copies = copy
+            attributes['pDevMode'].Color = color
+            attributes['pDevMode'].Duplex = duplex
+            win32print.SetPrinter(handle, 2, attributes, 0)
+            win32print.SetDefaultPrinter(printer_name)
+            printprocess(['sumatra\\SumatraPDF.exe', '-print-to-default', '-silent', pdf])
+            win32print.SetPrinter(handle, 2, attributesolds, 0)
+            win32print.SetDefaultPrinter(default_printer)
+            await asyncio.sleep(5)
 
-        for i in range(3600):
-            t = "{:02d}:{:02d}".format(i // 60, i % 60)
-            if win32print.EnumJobs(handle, 0, 1):
-                wait = caption + '\nОжидает печать - '
-                await call.message.edit_caption(caption=f'{wait}{t}</b>',parse_mode=ParseMode.HTML)
-            else: 
-                if i == 0: caption += f'\nПринят в печать'
-                else: caption = f'{wait}{t}\nПринят в печать'
-                break
-            await asyncio.sleep(1)
-        else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
+            caption += '\nПечатается - '
+            r = 0
+            for i in range(3600):
+                t = "{:02d}:{:02d}".format(i // 60, i % 60)
+                await call.message.edit_caption(caption=f'{caption}{t}</b>',
+                                                parse_mode=ParseMode.HTML)
+                status = win32print.GetPrinter(handle, 2)['Status']
+                job = win32print.EnumJobs(handle, 0, 1)
+                if not job and i > rn(5,10):break
+                if status !=0 and report:
+                    logging.error(f'ERROR #{status} on PRINTER!')
+                    report = False
+                    r = i
+                    if status in STATUS:
+                        await bot.send_message(get_defaults("ADMIN"),
+                                                    f'Во время печати произошла ошибка №{status}\
+                                                        \nТекст ошибки: {STATUS[status]}')
+                if i == 0 or i-r == 60:report = True
+                await asyncio.sleep(1)
+            else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
 
-        attributesolds = win32print.GetPrinter(handle, 2)
-        attributes = attributesolds
-        attributes['pDevMode'].Copies = copy
-        attributes['pDevMode'].Color = color
-        attributes['pDevMode'].Duplex = duplex
-        win32print.SetPrinter(handle, 2, attributes, 0)
-        win32print.SetDefaultPrinter(printer_name)
-        printprocess(['util\\sumatra\\SumatraPDF.exe', '-print-to-default', '-silent', pdf])
-        #win32api.ShellExecute(2,'print',pdf, None, '.', 0)
-        await asyncio.sleep(5)
-        win32print.SetPrinter(handle, 2, attributesolds, 0)  
+            caption += f'{t}\nФайл успешно напечатан!'
 
-        caption += '\nПечатается - '
-        r = 0
-        for i in range(3600):
-            t = "{:02d}:{:02d}".format(i // 60, i % 60)
-            await call.message.edit_caption(caption=f'{caption}{t}</b>',parse_mode=ParseMode.HTML)
-            status = win32print.GetPrinter(handle, 2)['Status']
-            job = win32print.EnumJobs(handle, 0, 1)
-            if not job: break
-            if status !=0 and report:
-                logging.error(f'ERROR #{status} on PRINTER!')
-                report = False
-                r = i
-                if status in STATUS:
-                    await bot.send_message(get_defaults("ADMIN"),f'Во время печати произошла ошибка\
-                                                        №{status}\nТекст ошибки: {STATUS[status]}')
-            if i == 0 or i-r == 60:report = True
-            await asyncio.sleep(1)
-        else:await call.message.edit_caption(caption=f'Что-то пошло не так...')
+            logging.info(f'file for USER({call.from_user.id}) successful PRINTED!')
+            await call.message.edit_caption(caption=f'{caption}</b>', parse_mode=ParseMode.HTML)
 
-        caption += f'{t}\nФайл успешно напечатан!'
-
-        logging.info(f'file for USER({call.from_user.id}) successful PRINTED!')
-        await call.message.edit_caption(caption=f'{caption}</b>', parse_mode=ParseMode.HTML)
-        shutil.rmtree(path)
+        except Exception as e:
+            logging.error(f'file for USER({call.from_user.id}) not PRINTED! - {e}')
+            caption += '\nЧто то пошло не так...'
+            await call.message.edit_caption(caption=f'{caption}</b>',parse_mode=ParseMode.HTML)
+            await bot.send_message(get_defaults("ADMIN"),f'Во время печати произошла ошибка.\
+                                                        \nТекст ошибки: {e}')
+        finally:shutil.rmtree(path)
 
     if data[1] == 'cancel':
         await delete_file(file_id)

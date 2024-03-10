@@ -2,6 +2,6 @@
 **/__pycache__/
 *.sql
 /logs
-util/sumatra/*
+sumatra/*
 !SumatraPDF.exe
 *.exe
