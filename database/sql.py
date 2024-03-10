@@ -44,8 +44,11 @@ def db_start():
                 '''
                 )
     try:
-        cur.execute("INSERT INTO defaults (key, value) VALUES (?, ?)", ('printer', 'Default'))
-    except sqlite3.IntegrityError:None    
+        cur.execute("INSERT INTO defaults (key, value) VALUES (?, ?)", ('PRINTER', 'Default'))
+        cur.execute("INSERT INTO defaults (key) VALUES (?)", ('TOKEN',))
+        cur.execute("INSERT INTO defaults (key) VALUES (?)", ('ADMIN',))
+        cur.execute("INSERT INTO defaults (key) VALUES (?)", ('KEY',))
+    except sqlite3.IntegrityError:None
     finally:
         db.commit()
         db.close()

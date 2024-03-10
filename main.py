@@ -1,17 +1,15 @@
-import asyncio
-from bot import printbot
-from tray import tray
+from threading import Thread
+from asyncio import run
+from app.bot import printbot
+from app.tray import tray
+
 
 def main():
-    shutdown = asyncio.Event()
-    loop = asyncio.get_event_loop()
-    bot = loop.create_task(printbot())
-    loop.run_until_complete(tray())
-    bot.cancel()
-    try:
-        loop.run_until_complete(bot)
-    except asyncio.CancelledError:
-        pass
+    trayproc = Thread(target=tray)
+    botproc = Thread(target=run, args=(printbot(),), daemon=True)
+    trayproc.start()
+    botproc.start()
+    trayproc.join()
 
 if __name__ == '__main__':
     main()
