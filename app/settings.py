@@ -16,6 +16,9 @@ def settings():
             messagebox.showerror("Ошибка", 
                                  "Поле токена не заполнено или не соответствует формату.")
             return
+        else: messagebox.showwarning("Предупреждение", 
+                                     'Кажется вы изменили токен бота, необходим перезапуск.\
+            \nНажмите "Выход" в выпадающем меню иконки системного трея и запустите бота снова.')
 
         if not token_value or not admin_id_value or not secret_word_value:
             messagebox.showwarning("Предупреждение", 
