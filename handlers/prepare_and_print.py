@@ -159,7 +159,7 @@ async def andprint(call:CallbackQuery, bot:Bot):
                 report = False
                 r = i
                 if status in STATUS:
-                    await bot.send_message(os.getenv('ADMIN'),f'Во время печати произошла ошибка\
+                    await bot.send_message(get_defaults("ADMIN"),f'Во время печати произошла ошибка\
                                                         №{status}\nТекст ошибки: {STATUS[status]}')
             if i == 0 or i-r == 60:report = True
             await asyncio.sleep(1)

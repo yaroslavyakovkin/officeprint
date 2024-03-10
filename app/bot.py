@@ -4,27 +4,20 @@ from datetime import datetime as dt
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
 from handlers.start_reg_stop import start_bot, stop_bot, start, secrete_key, verify
-from database.sql import db_start, get_defaults
+from database.sql import get_defaults
 from handlers.prepare_and_print import prepare, andprint
-from app.settings import settings
 
-
-db_start()
-while True:
-    TOKEN = get_defaults('TOKEN')
-    ADMIN = get_defaults("ADMIN")
-    KEY = get_defaults('KEY')
-
-    if TOKEN is None: settings()
-    else:break
 
 logging.basicConfig(level=logging.INFO, 
                     filename=f'logs\\officeprinter_{dt.now().strftime("%Y-%m-%d_%H-%M")}.log',
                     format='%(asctime)s - [%(levelname)s] - %(name)s - %(message)s')
 
+TOKEN = get_defaults('TOKEN')
+ADMIN = get_defaults("ADMIN")
+KEY = get_defaults('KEY')
+
 bot = Bot(token=TOKEN)
 dp = Dispatcher()
-db_start()
 
 async def printbot():
     dp.callback_query.register(verify, F.data.startswith('verify:'))

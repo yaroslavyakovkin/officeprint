@@ -1,15 +1,13 @@
 import pystray as tr
 import os
-# import subprocess as sub
 from winotify import Notification as N
 from PIL import Image
 from win32 import win32print as p
-from database.sql import edit_defaults, get_defaults, db_start
+from database.sql import edit_defaults, get_defaults
 from app.settings import settings
 
     
 def tray():
-    db_start()
     img = Image.open('assets\\alpha.png')
 
     def get_printers():
@@ -46,9 +44,6 @@ def tray():
     menu = get_menu()
     icon = tr.Icon('Office Printer', img, 'Office Printer', tr.Menu(*menu))
     icon.run()
-
-    # process = sub.Popen('.venv/Scripts/python bot.py', creationflags=sub.CREATE_NO_WINDOW)
-    # process.terminate()
 
     ico = os.path.join(os.getcwd(),'assets\logo.jpg')
     toast = N(app_id='Office Print',
