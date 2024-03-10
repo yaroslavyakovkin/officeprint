@@ -1,8 +1,9 @@
 import re
-import webbrowser
+import webbrowser as wb
 from RandomWordGenerator import RandomWord as rw
 import tkinter as tk
 from tkinter import ttk, messagebox
+
 from database.sql import edit_defaults, get_defaults
 
 
@@ -61,13 +62,13 @@ def settings():
         secret_word_entry.insert(0, rw(5).generate())
 
     def github(event):
-        webbrowser.open('https://github.com/yaroslavyakovkin')
+        wb.open('https://github.com/yaroslavyakovkin')
 
     def botfather(event):
-        webbrowser.open('https://t.me/BotFather')
+        wb.open('https://t.me/BotFather')
 
     def getmyid(event):
-        webbrowser.open('https://t.me/getmyid_bot')
+        wb.open('https://t.me/getmyid_bot')
 
     def infohelp(event):
         messagebox.showinfo("Помощь",

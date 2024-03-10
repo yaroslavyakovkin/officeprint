@@ -3,7 +3,7 @@ from app.settings import settings
 from database.sql import db_start, get_defaults
 from winotify import Notification as N
 
-
+if not os.path.exists('temp'):os.makedirs('temp')
 db_start()
 if get_defaults('TOKEN') is None:
     settings()

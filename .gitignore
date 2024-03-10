@@ -1,10 +1,7 @@
-/.env
 /.venv
 **/__pycache__/
-/assets
 *.sql
 /logs
 util/sumatra/*
 !SumatraPDF.exe
-alpha.ico
 *.exe
