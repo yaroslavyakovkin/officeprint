@@ -62,7 +62,7 @@ def settings():
         secret_word_entry.insert(0, rw(5).generate())
 
     def github(event):
-        wb.open('https://github.com/yaroslavyakovkin')
+        wb.open('https://github.com/yaroslavyakovkin/officeprint')
 
     def botfather(event):
         wb.open('https://t.me/BotFather')
@@ -86,7 +86,7 @@ def settings():
 \nВсе упомянутые боты, доступны по клику на текст "Токен" и "Админ" в главном меню. \
 При клике на "Ключ", сгенерируется случайный вариант.\n\
 \nЕсли по какой то причине бот не работает, проверьте правильность написания токена \
-и перезапустите приложение. В крайнем случае обращайтесь к создателю бота @yrkdaysnf')
+и перезапустите приложение. В крайнем случае обратитесь к создателю бота.')
 
     # Получаем значения из базы данных
     default_token = get_defaults('TOKEN')

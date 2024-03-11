@@ -8,10 +8,10 @@ async def commands(bot: Bot):
             command='start',
             description='Стартовое сообщение.'
         ),
-        BotCommand(
-            command='settings',
-            description='Настройки печати по умолчанию'
-        ),
+        # BotCommand(
+        #     command='settings',
+        #     description='Настройки печати по умолчанию'
+        # ),
         BotCommand(
             command='code',
             description='Верификация с помощью кода'

@@ -20,7 +20,7 @@ async def start_bot(bot:Bot):
     toast.add_actions(label='Telegram',
                       launch=url)
     toast.show()
-    await commands(bot)
+    # await commands(bot)
 
 async def start(message:Message, bot:Bot):
     user_id = message.from_user.id
