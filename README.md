@@ -9,11 +9,13 @@
 
 **Дополнительно**
 
-_tkinter_, 
-_winotify_, 
-_pystray_, 
-_sqlite3_, 
-_doc2pdf_
+Для печати используется _[Sumatra PDF](https://github.com/sumatrapdfreader/sumatrapdf?ysclid=ltnhpznrqx95848278)_.
+
+UI штуки сделаны в _tkinter_, _winotify_, _pystray_ 
+
+Базы данных _sqlite3_, 
+
+Конвертация файлов _doc2pdf_
 
 
 ## О боте
