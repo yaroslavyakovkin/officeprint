@@ -12,7 +12,7 @@ from aiogram.enums import ParseMode
 
 from util.keyboards import kbmain, kbsett
 from util.checking import STATUS, ALLOWED_EXTENSIONS
-from database.sql import (get_verify, create_file, delete_file, 
+from util.sql import (get_verify, create_file, delete_file, 
                           get_settings, edit_settings, get_defaults)
 
 

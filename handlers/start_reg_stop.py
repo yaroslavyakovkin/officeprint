@@ -5,7 +5,7 @@ from aiogram import Bot
 from aiogram.types import Message, CallbackQuery
 from aiogram.enums import ParseMode
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from database.sql import get_verify, create_user, switch_verify, get_username, get_defaults
+from util.sql import get_verify, create_user, switch_verify, get_username, get_defaults
 from util.commands import commands
 
 async def start_bot(bot:Bot):

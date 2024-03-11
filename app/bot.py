@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command, CommandStart
 
 from handlers.start_reg_stop import start_bot, stop_bot, start, secrete_key, verify
-from database.sql import get_defaults
+from util.sql import get_defaults
 from handlers.prepare_and_print import prepare, andprint
 
 if not os.path.exists('logs'):os.makedirs('logs')

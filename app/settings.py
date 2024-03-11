@@ -4,7 +4,7 @@ from RandomWordGenerator import RandomWord as rw
 import tkinter as tk
 from tkinter import ttk, messagebox
 
-from database.sql import edit_defaults, get_defaults
+from util.sql import edit_defaults, get_defaults
 
 
 def settings():

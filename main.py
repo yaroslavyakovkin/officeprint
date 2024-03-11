@@ -1,7 +1,7 @@
 import os
 import shutil
 from app.settings import settings
-from database.sql import db_start, get_defaults
+from util.sql import db_start, get_defaults
 from winotify import Notification as N
 
 

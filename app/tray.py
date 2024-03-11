@@ -4,7 +4,7 @@ from winotify import Notification as N
 from PIL import Image
 from win32 import win32print as p
 
-from database.sql import edit_defaults, get_defaults
+from util.sql import edit_defaults, get_defaults
 from app.settings import settings
 
     
